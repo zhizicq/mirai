@@ -48,7 +48,7 @@ private val JSON = Json(JsonConfiguration.Default)
  * 部分需要权限, 若无权限则会使用默认值.
  */
 @Serializable
-actual open class SystemDeviceInfo actual constructor() : DeviceInfo() {
+actual open class SystemDeviceInfo() : DeviceInfo() {
     actual constructor(context: Context) : this() {
         this.context = context
     }
