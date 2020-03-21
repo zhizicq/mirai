@@ -13,29 +13,29 @@ package net.mamoe.mirai.utils
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.withContext
-import kotlinx.io.core.Input
 import kotlinx.io.core.IoBuffer
-import kotlinx.io.core.copyTo
 import kotlinx.io.errors.IOException
 import kotlinx.io.streams.asInput
-import kotlinx.io.streams.asOutput
 import java.io.File
-import java.io.InputStream
-import java.net.URL
 
 /*
  * 将各类型图片容器转为 [ExternalImage]
  */
 
 
+@Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37662
+actual typealias JvmPlatformImage = Bitmap
+
 /**
  * 读取 [Bitmap] 的属性, 然后构造 [ExternalImage]
  */
-@Suppress("UNUSED_PARAMETER")
+@Suppress(
+    "UNUSED_PARAMETER",
+    "ACTUAL_WITHOUT_EXPECT",
+    "ACTUAL_FUNCTION_WITH_DEFAULT_ARGUMENTS"
+) // https://youtrack.jetbrains.com/issue/KT-37662
 @Throws(IOException::class)
-fun Bitmap.toExternalImage(formatName: String = "gif"): ExternalImage {
+actual fun Bitmap.toExternalImage(formatName: String = "gif"): ExternalImage {
     TODO()
 }
 
@@ -44,9 +44,10 @@ fun Bitmap.toExternalImage(formatName: String = "gif"): ExternalImage {
 /**
  * 读取文件头识别图片属性, 然后构造 [ExternalImage]
  */
+@Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37662
 @OptIn(MiraiInternalAPI::class)
 @Throws(IOException::class)
-fun File.toExternalImage(): ExternalImage {
+actual fun File.toExternalImage(): ExternalImage {
     val input = BitmapFactory.decodeFile(this.absolutePath)
     checkNotNull(input) { "Unable to read file(path=${this.path}), BitmapFactory.decodeFile returned null" }
 
@@ -60,81 +61,3 @@ fun File.toExternalImage(): ExternalImage {
         filename = this.name
     )
 }
-
-/**
- * 在 [IO] 中进行 [File.toExternalImage]
- */
-suspend inline fun File.suspendToExternalImage(): ExternalImage = withContext(IO) { toExternalImage() }
-
-/**
- * 下载文件到临时目录然后调用 [File.toExternalImage]
- */
-@Throws(IOException::class)
-fun URL.toExternalImage(): ExternalImage {
-    val file = createTempFile().apply { deleteOnExit() }
-    file.outputStream().asOutput().use { output ->
-        openStream().asInput().use { input ->
-            input.copyTo(output)
-        }
-        output.flush()
-    }
-    return file.toExternalImage()
-}
-
-/**
- * 在 [IO] 中进行 [URL.toExternalImage]
- */
-suspend inline fun URL.suspendToExternalImage(): ExternalImage = withContext(IO) { toExternalImage() }
-
-/**
- * 保存为临时文件然后调用 [File.toExternalImage]
- */
-@Throws(IOException::class)
-fun InputStream.toExternalImage(): ExternalImage {
-    val file = createTempFile().apply { deleteOnExit() }
-    file.outputStream().use {
-        this.copyTo(it)
-        it.flush()
-    }
-    this.close()
-    return file.toExternalImage()
-}
-
-/**
- * 在 [IO] 中进行 [InputStream.toExternalImage]
- */
-suspend inline fun InputStream.suspendToExternalImage(): ExternalImage = withContext(IO) { toExternalImage() }
-
-/**
- * 保存为临时文件然后调用 [File.toExternalImage].
- *
- * 需要函数调用者 close [this]
- */
-@Throws(IOException::class)
-fun Input.toExternalImage(): ExternalImage {
-    val file = createTempFile().apply { deleteOnExit() }
-    file.outputStream().asOutput().use {
-        this.copyTo(it)
-        it.flush()
-    }
-    return file.toExternalImage()
-}
-
-/**
- * 在 [IO] 中进行 [Input.toExternalImage]
- */
-suspend inline fun Input.suspendToExternalImage(): ExternalImage = withContext(IO) { toExternalImage() }
-
-/*
-/**
- * 保存为临时文件然后调用 [File.toExternalImage].
- */
-suspend fun ByteReadChannel.toExternalImage(): ExternalImage {
-    val file = createTempFile().apply { deleteOnExit() }
-    file.outputStream().use {
-        withContext(IO) { copyTo(it) }
-        it.flush()
-    }
-
-    return file.suspendToExternalImage()
-}*/

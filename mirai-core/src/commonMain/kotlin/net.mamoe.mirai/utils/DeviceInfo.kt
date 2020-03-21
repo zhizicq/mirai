@@ -129,11 +129,11 @@ class DeviceInfoData(
     override val androidId: ByteArray get() = display
 
     @Serializable
-    class VersionData(
-        override val incremental: ByteArray = SystemDeviceInfo.Version.incremental,
-        override val release: ByteArray = SystemDeviceInfo.Version.release,
-        override val codename: ByteArray = SystemDeviceInfo.Version.codename,
-        override val sdk: Int = SystemDeviceInfo.Version.sdk
+    class VersionData( // kotlin bug
+        override val incremental: ByteArray = RandomDefaultDeviceInfo.Version.incremental,
+        override val release: ByteArray = RandomDefaultDeviceInfo.Version.release,
+        override val codename: ByteArray = RandomDefaultDeviceInfo.Version.codename,
+        override val sdk: Int = RandomDefaultDeviceInfo.Version.sdk
     ) : Version
 }
 

@@ -208,6 +208,7 @@ inline fun MiraiLogger.error(lazyMessage: () -> String?, e: Throwable?) {
  *
  * 不应该直接构造这个类的实例. 请使用 [DefaultLogger], 或使用默认的顶层日志记录 [MiraiLogger.Companion]
  */
+@Suppress("NO_ACTUAL_FOR_EXPECT")
 expect open class PlatformLogger @JvmOverloads constructor(identity: String? = "Mirai") : MiraiLoggerPlatformBase
 
 

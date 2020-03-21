@@ -52,6 +52,7 @@ kotlin {
         )
     }
 
+    jvm("jvmBase")
     jvm()
 
     sourceSets {
@@ -60,7 +61,7 @@ kotlin {
             languageSettings.useExperimentalAnnotation("kotlin.Experimental")
         }
 
-        commonMain {
+        val commonMain by getting {
             dependencies {
                 api(kotlin("stdlib", kotlinVersion))
                 api(kotlin("serialization", kotlinVersion))
@@ -80,24 +81,34 @@ kotlin {
                 api(ktor("network", ktorVersion))
             }
         }
-        commonTest {
+        val commonTest by getting {
             dependencies {
                 implementation(kotlin("test-annotations-common"))
                 implementation(kotlin("test-common"))
             }
         }
 
+        val jvmBaseMain by getting {
+            dependencies {
+                dependsOn(commonMain)
+                api(kotlin("reflect", kotlinVersion))
+
+                api(ktor("client-core-jvm", ktorVersion))
+                api(kotlinx("io-jvm", kotlinXIoVersion))
+                api(kotlinx("serialization-runtime", serializationVersion))
+                api(kotlinx("serialization-protobuf", serializationVersion))
+                api(kotlinx("coroutines-io-jvm", coroutinesIoVersion))
+                api(kotlinx("coroutines-core", coroutinesVersion))
+
+                runtimeOnly(files("build/classes/kotlin/jvm/main")) // classpath is not properly set by IDE
+            }
+        }
+
         if (isAndroidSDKAvailable) {
             val androidMain by getting {
+                dependsOn(jvmBaseMain)
                 dependencies {
-                    api(kotlin("reflect", kotlinVersion))
-
-                    api(kotlinx("io-jvm", kotlinXIoVersion))
-                    api(kotlinx("serialization-runtime", serializationVersion))
-                    api(kotlinx("serialization-protobuf", serializationVersion))
                     api(kotlinx("coroutines-android", coroutinesVersion))
-                    api(kotlinx("coroutines-io-jvm", coroutinesIoVersion))
-
                     api(ktor("client-android", ktorVersion))
                 }
             }
@@ -113,20 +124,16 @@ kotlin {
         }
 
         val jvmMain by getting {
+            dependsOn(jvmBaseMain)
             dependencies {
-                //api(kotlin("stdlib-jdk8", kotlinVersion))
-                //api(kotlin("stdlib-jdk7", kotlinVersion))
-                api(kotlin("reflect", kotlinVersion))
-
-                api(ktor("client-core-jvm", ktorVersion))
-                api(kotlinx("io-jvm", kotlinXIoVersion))
-                api(kotlinx("serialization-runtime", serializationVersion))
-                api(kotlinx("serialization-protobuf", serializationVersion))
-                api(kotlinx("coroutines-io-jvm", coroutinesIoVersion))
-                api(kotlinx("coroutines-core", coroutinesVersion))
-
                 api("org.bouncycastle:bcprov-jdk15on:1.64")
-                runtimeOnly(files("build/classes/kotlin/jvm/main")) // classpath is not properly set by IDE
+            }
+        }
+
+        val jvmBaseTest by getting {
+            dependencies {
+                implementation(kotlin("test", kotlinVersion))
+                implementation(kotlin("test-junit", kotlinVersion))
             }
         }
 

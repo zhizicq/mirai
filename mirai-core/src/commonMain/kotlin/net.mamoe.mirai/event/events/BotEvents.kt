@@ -24,9 +24,8 @@ import net.mamoe.mirai.message.data.MessageChain
 import net.mamoe.mirai.utils.ExternalImage
 import net.mamoe.mirai.utils.MiraiExperimentalAPI
 
-
 @Suppress("unused")
-expect class EventCancelledException : RuntimeException {
+class EventCancelledException : RuntimeException {
     constructor()
     constructor(message: String?)
     constructor(message: String?, cause: Throwable?)

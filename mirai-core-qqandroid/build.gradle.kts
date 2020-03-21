@@ -26,7 +26,7 @@ fun ktor(id: String, version: String) = "io.ktor:ktor-$id:$version"
 
 description = "QQ protocol library"
 
-val isAndroidSDKAvailable: Boolean by project
+val isAndroidSDKAvailable: Boolean = false
 
 val miraiVersion: String by project
 version = miraiVersion
@@ -62,7 +62,6 @@ kotlin {
             languageSettings.useExperimentalAnnotation("kotlin.Experimental")
 
             dependencies {
-                api(project(":mirai-core"))
 
                 api(kotlin("stdlib", kotlinVersion))
 
@@ -74,6 +73,7 @@ kotlin {
         }
         commonMain {
             dependencies {
+                api(project(":mirai-core"))
                 api(kotlinx("serialization-runtime-common", serializationVersion))
                 api(kotlinx("serialization-protobuf-common", serializationVersion))
             }
@@ -89,6 +89,7 @@ kotlin {
         if (isAndroidSDKAvailable) {
             val androidMain by getting {
                 dependencies {
+                    api(project(":mirai-core"))
                     api(kotlinx("serialization-protobuf", serializationVersion))
                 }
             }
@@ -105,9 +106,10 @@ kotlin {
 
         val jvmMain by getting {
             dependencies {
+                api(project(":mirai-core"))
+
                 runtimeOnly(files("build/classes/kotlin/jvm/main")) // classpath is not properly set by IDE
                 api(kotlinx("serialization-runtime", serializationVersion))
-                //api(kotlinx("serialization-protobuf", serializationVersion))
 
             }
         }

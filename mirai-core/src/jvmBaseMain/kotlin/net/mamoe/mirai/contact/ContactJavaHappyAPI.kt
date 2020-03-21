@@ -9,7 +9,6 @@
 
 package net.mamoe.mirai.contact
 
-import android.graphics.Bitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.io.core.Input
 import net.mamoe.mirai.Bot
@@ -23,6 +22,7 @@ import net.mamoe.mirai.message.data.Image
 import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.uploadImage
 import net.mamoe.mirai.utils.ExternalImage
+import net.mamoe.mirai.utils.JvmPlatformImage
 import net.mamoe.mirai.utils.MiraiInternalAPI
 import net.mamoe.mirai.utils.OverFileSizeMaxException
 import java.io.File
@@ -128,7 +128,7 @@ actual abstract class ContactJavaHappyAPI {
      */
     @Throws(OverFileSizeMaxException::class)
     @JvmName("uploadImage")
-    open fun __uploadImageBlockingForJava__(image: Bitmap): Image {
+    open fun __uploadImageBlockingForJava__(image: JvmPlatformImage): Image {
         return runBlocking { uploadImage(image) }
     }
 
@@ -197,7 +197,7 @@ actual abstract class ContactJavaHappyAPI {
      * 在 [Dispatchers.IO] 中将图片上传, 但不发送. 不会保存临时文件
      */
     @JvmName("uploadImageAsync")
-    open fun __uploadImageAsyncForJava__(image: Bitmap): Future<Image> {
+    open fun __uploadImageAsyncForJava__(image: JvmPlatformImage): Future<Image> {
         return future { uploadImage(image) }
     }
 }
@@ -225,7 +225,7 @@ actual abstract class MemberJavaHappyAPI : QQ() {
      *
      * 管理员可禁言成员, 群主可禁言管理员和群员.
      *
-     * @param durationSeconds 持续时间. 精确到秒. 范围区间表示为 `(0s, 30days]`. 超过范围则会抛出异常.
+     * @param seconds 持续时间. 精确到秒. 范围区间表示为 `(0s, 30days]`. 超过范围则会抛出异常.
      * @return 机器人无权限时返回 `false`
      *
      * @see Int.minutesToSeconds
@@ -237,7 +237,7 @@ actual abstract class MemberJavaHappyAPI : QQ() {
      */
     @JvmName("mute")
     open fun __muteBlockingForJava__(seconds: Int) {
-        return runBlocking { mute(seconds) }
+        runBlocking { mute(seconds) }
     }
 
     /**
@@ -250,7 +250,7 @@ actual abstract class MemberJavaHappyAPI : QQ() {
      */
     @JvmName("unmute")
     open fun __unmuteBlockingForJava__() {
-        return runBlocking { unmute() }
+        runBlocking { unmute() }
     }
 
     /**
@@ -263,7 +263,7 @@ actual abstract class MemberJavaHappyAPI : QQ() {
      */
     @JvmName("kick")
     open fun __kickBlockingForJava__(message: String) {
-        return runBlocking { kick() }
+        runBlocking { kick() }
     }
 
     /**
@@ -286,7 +286,7 @@ actual abstract class MemberJavaHappyAPI : QQ() {
      *
      * 管理员可禁言成员, 群主可禁言管理员和群员.
      *
-     * @param durationSeconds 持续时间. 精确到秒. 范围区间表示为 `(0s, 30days]`. 超过范围则会抛出异常.
+     * @param seconds 持续时间. 精确到秒. 范围区间表示为 `(0s, 30days]`. 超过范围则会抛出异常.
      * @return 机器人无权限时返回 `false`
      *
      * @see Int.minutesToSeconds

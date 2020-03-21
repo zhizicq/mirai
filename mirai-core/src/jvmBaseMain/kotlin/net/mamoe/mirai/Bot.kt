@@ -27,7 +27,8 @@ import net.mamoe.mirai.utils.*
 @OptIn(
     MiraiInternalAPI::class, LowLevelAPI::class, MiraiExperimentalAPI::class, JavaHappyAPI::class
 )
-actual abstract class Bot actual constructor() : CoroutineScope, LowLevelBotAPIAccessor, BotJavaHappyAPI() {
+actual abstract class Bot actual constructor() : CoroutineScope,
+    LowLevelBotAPIAccessor, BotJavaHappyAPI() {
     actual companion object {
         /**
          * 复制一份此时的 [Bot] 实例列表.
@@ -39,20 +40,33 @@ actual abstract class Bot actual constructor() : CoroutineScope, LowLevelBotAPIA
         /**
          * 遍历每一个 [Bot] 实例
          */
-        actual inline fun forEachInstance(block: (Bot) -> Unit) = BotImpl.forEachInstance(block)
+        @JvmName("forEachInstanceKotlin")
+        @JvmSynthetic
+        actual inline fun forEachInstance(block: (Bot) -> Unit) =
+            BotImpl.forEachInstance(block)
+
+        /**
+         * 遍历每一个 [Bot] 实例
+         */
+        @JavaHappyAPI
+        @JvmName("forEachInstance")
+        @Suppress("FunctionName")
+        fun __forEachInstanceForJava__(block: (Bot) -> Unit) =
+            forEachInstance(block)
 
         /**
          * 获取一个 [Bot] 实例, 找不到则 [NoSuchElementException]
          */
         @JvmStatic
-        actual fun getInstance(qq: Long): Bot = BotImpl.getInstance(qq = qq)
+        actual fun getInstance(qq: Long): Bot =
+            BotImpl.getInstance(qq = qq)
     }
 
     /**
      * [Bot] 运行的 [Context].
      *
-     * 在 JVM 的默认实现为 `class ContextImpl : Context`
-     * 在 Android 实现为 [android.content.Context]
+     * 在 JVM 的默认实现为 [net.mamoe.mirai.utils.Context]
+     * 在 Android 实现为 `android.content.Context`
      */
     actual abstract val context: Context
 

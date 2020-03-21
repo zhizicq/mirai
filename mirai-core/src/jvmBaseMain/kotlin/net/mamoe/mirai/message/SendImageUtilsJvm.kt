@@ -11,20 +11,16 @@
 
 package net.mamoe.mirai.message
 
-import android.graphics.Bitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.io.core.Input
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.message.data.Image
-import net.mamoe.mirai.utils.OverFileSizeMaxException
-import net.mamoe.mirai.utils.sendTo
-import net.mamoe.mirai.utils.toExternalImage
-import net.mamoe.mirai.utils.upload
+import net.mamoe.mirai.message.data.OfflineImage
+import net.mamoe.mirai.utils.*
 import java.io.File
 import java.io.InputStream
 import java.net.URL
-
 /*
  * 发送图片的一些扩展函数.
  */
@@ -36,7 +32,7 @@ import java.net.URL
  * @throws OverFileSizeMaxException
  */
 @Throws(OverFileSizeMaxException::class)
-suspend fun <C : Contact> Bitmap.sendTo(contact: C): MessageReceipt<C> =
+suspend fun <C : Contact> JvmPlatformImage.sendTo(contact: C): MessageReceipt<C> =
     withContext(Dispatchers.IO) { toExternalImage() }.sendTo(contact)
 
 /**
@@ -82,14 +78,15 @@ suspend fun <C : Contact> File.sendAsImageTo(contact: C): MessageReceipt<C> {
  * @throws OverFileSizeMaxException
  */
 @Throws(OverFileSizeMaxException::class)
-suspend fun Bitmap.upload(contact: Contact): Image = withContext(Dispatchers.IO) { toExternalImage() }.upload(contact)
+suspend fun JvmPlatformImage.upload(contact: Contact): OfflineImage =
+    withContext(Dispatchers.IO) { toExternalImage() }.upload(contact)
 
 /**
  * 在 [Dispatchers.IO] 中下载 [URL] 到临时文件并将其作为图片上传后构造 [Image]
  * @throws OverFileSizeMaxException
  */
 @Throws(OverFileSizeMaxException::class)
-suspend fun URL.uploadAsImage(contact: Contact): Image =
+suspend fun URL.uploadAsImage(contact: Contact): OfflineImage =
     withContext(Dispatchers.IO) { toExternalImage() }.upload(contact)
 
 /**
@@ -97,7 +94,7 @@ suspend fun URL.uploadAsImage(contact: Contact): Image =
  * @throws OverFileSizeMaxException
  */
 @Throws(OverFileSizeMaxException::class)
-suspend fun Input.uploadAsImage(contact: Contact): Image =
+suspend fun Input.uploadAsImage(contact: Contact): OfflineImage =
     withContext(Dispatchers.IO) { toExternalImage() }.upload(contact)
 
 /**
@@ -105,7 +102,7 @@ suspend fun Input.uploadAsImage(contact: Contact): Image =
  * @throws OverFileSizeMaxException
  */
 @Throws(OverFileSizeMaxException::class)
-suspend fun InputStream.uploadAsImage(contact: Contact): Image =
+suspend fun InputStream.uploadAsImage(contact: Contact): OfflineImage =
     withContext(Dispatchers.IO) { toExternalImage() }.upload(contact)
 
 /**
@@ -113,7 +110,7 @@ suspend fun InputStream.uploadAsImage(contact: Contact): Image =
  * @throws OverFileSizeMaxException
  */
 @Throws(OverFileSizeMaxException::class)
-suspend fun File.uploadAsImage(contact: Contact): Image {
+suspend fun File.uploadAsImage(contact: Contact): OfflineImage {
     require(this.exists() && this.canRead())
     return withContext(Dispatchers.IO) { toExternalImage() }.upload(contact)
 }
@@ -127,7 +124,8 @@ suspend fun File.uploadAsImage(contact: Contact): Image {
  * @throws OverFileSizeMaxException
  */
 @Throws(OverFileSizeMaxException::class)
-suspend inline fun <C : Contact> C.sendImage(bufferedImage: Bitmap): MessageReceipt<C> = bufferedImage.sendTo(this)
+suspend inline fun <C : Contact> C.sendImage(bufferedImage: JvmPlatformImage): MessageReceipt<C> =
+    bufferedImage.sendTo(this)
 
 /**
  * 在 [Dispatchers.IO] 中下载 [URL] 到临时文件并将其作为图片发送到指定联系人
@@ -167,34 +165,34 @@ suspend inline fun <C : Contact> C.sendImage(file: File): MessageReceipt<C> = fi
  * @throws OverFileSizeMaxException
  */
 @Throws(OverFileSizeMaxException::class)
-suspend inline fun Contact.uploadImage(bufferedImage: Bitmap): Image = bufferedImage.upload(this)
+suspend inline fun Contact.uploadImage(bufferedImage: JvmPlatformImage): OfflineImage = bufferedImage.upload(this)
 
 /**
  * 在 [Dispatchers.IO] 中下载 [URL] 到临时文件并将其作为图片上传, 但不发送
  * @throws OverFileSizeMaxException
  */
 @Throws(OverFileSizeMaxException::class)
-suspend inline fun Contact.uploadImage(imageUrl: URL): Image = imageUrl.uploadAsImage(this)
+suspend inline fun Contact.uploadImage(imageUrl: URL): OfflineImage = imageUrl.uploadAsImage(this)
 
 /**
  * 在 [Dispatchers.IO] 中读取 [Input] 到临时文件并将其作为图片上传, 但不发送
  * @throws OverFileSizeMaxException
  */
 @Throws(OverFileSizeMaxException::class)
-suspend inline fun Contact.uploadImage(imageInput: Input): Image = imageInput.uploadAsImage(this)
+suspend inline fun Contact.uploadImage(imageInput: Input): OfflineImage = imageInput.uploadAsImage(this)
 
 /**
  * 在 [Dispatchers.IO] 中读取 [InputStream] 到临时文件并将其作为图片上传, 但不发送
  * @throws OverFileSizeMaxException
  */
 @Throws(OverFileSizeMaxException::class)
-suspend inline fun Contact.uploadImage(imageStream: InputStream): Image = imageStream.uploadAsImage(this)
+suspend inline fun Contact.uploadImage(imageStream: InputStream): OfflineImage = imageStream.uploadAsImage(this)
 
 /**
  * 在 [Dispatchers.IO] 中将文件作为图片上传, 但不发送
  * @throws OverFileSizeMaxException
  */
 @Throws(OverFileSizeMaxException::class)
-suspend inline fun Contact.uploadImage(file: File): Image = file.uploadAsImage(this)
+suspend inline fun Contact.uploadImage(file: File): OfflineImage = file.uploadAsImage(this)
 
 // endregion

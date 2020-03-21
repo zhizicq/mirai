@@ -146,6 +146,7 @@ actual abstract class Group : Contact(), CoroutineScope {
      */
     actual abstract fun getOrNull(id: Long): Member?
 
+
     /**
      * 检查此 id 的群成员是否存在
      */

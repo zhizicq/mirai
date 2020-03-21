@@ -11,14 +11,17 @@ package net.mamoe.mirai.utils.cryptor
 
 import net.mamoe.mirai.utils.io.chunkedHexToBytes
 
+@Suppress("NO_ACTUAL_FOR_EXPECT")
 expect interface ECDHPrivateKey {
     fun getEncoded(): ByteArray
 }
 
+@Suppress("NO_ACTUAL_FOR_EXPECT")
 expect interface ECDHPublicKey {
     fun getEncoded(): ByteArray
 }
 
+@Suppress("NO_ACTUAL_FOR_EXPECT")
 internal expect class ECDHKeyPairImpl : ECDHKeyPair
 
 interface ECDHKeyPair {
@@ -43,6 +46,7 @@ interface ECDHKeyPair {
 /**
  * 椭圆曲线密码, ECDH 加密
  */
+@Suppress("NO_ACTUAL_FOR_EXPECT")
 expect class ECDH(keyPair: ECDHKeyPair) {
     val keyPair: ECDHKeyPair
 
@@ -73,10 +77,10 @@ expect class ECDH(keyPair: ECDHKeyPair) {
     override fun toString(): String
 }
 
-@Suppress("FunctionName")
+@Suppress("FunctionName", "NO_ACTUAL_FOR_EXPECT")
 expect fun ECDH(): ECDH
 
-val initialPublicKey
+internal val initialPublicKey
     get() = ECDH.constructPublicKey("3046301006072A8648CE3D020106052B8104001F03320004928D8850673088B343264E0C6BACB8496D697799F37211DEB25BB73906CB089FEA9639B4E0260498B51A992D50813DA8".chunkedHexToBytes())
 private val commonHeadFor02 = "302E301006072A8648CE3D020106052B8104001F031A00".chunkedHexToBytes()
 private val commonHeadForNot02 = "3046301006072A8648CE3D020106052B8104001F033200".chunkedHexToBytes()

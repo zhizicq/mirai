@@ -17,6 +17,7 @@ import kotlin.jvm.JvmStatic
 /**
  * 验证码, 设备锁解决器
  */
+@Suppress("NO_ACTUAL_FOR_EXPECT")
 expect abstract class LoginSolver {
     abstract suspend fun onSolvePicCaptcha(bot: Bot, data: ByteArray): String?
 
@@ -32,7 +33,7 @@ expect abstract class LoginSolver {
 /**
  * [Bot] 配置
  */
-@Suppress("PropertyName")
+@Suppress("PropertyName", "NO_ACTUAL_FOR_EXPECT")
 expect open class BotConfiguration() {
     /**
      * 日志记录器

@@ -18,10 +18,10 @@ import kotlinx.io.core.use
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.contact.QQ
 import net.mamoe.mirai.message.data.Image
+import net.mamoe.mirai.utils.JvmPlatformImage
 import net.mamoe.mirai.utils.MiraiInternalAPI
 import net.mamoe.mirai.utils.copyAndClose
 import net.mamoe.mirai.utils.copyTo
-import java.awt.image.BufferedImage
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -34,7 +34,7 @@ import java.net.URL
 @OptIn(MiraiInternalAPI::class)
 actual abstract class MessagePacket<TSender : QQ, TSubject : Contact> actual constructor() : MessagePacketBase<TSender, TSubject>() {
     // region 上传图片
-    suspend inline fun uploadImage(image: BufferedImage): Image = subject.uploadImage(image)
+    suspend inline fun uploadImage(image: JvmPlatformImage): Image = subject.uploadImage(image)
 
     suspend inline fun uploadImage(image: URL): Image = subject.uploadImage(image)
     suspend inline fun uploadImage(image: Input): Image = subject.uploadImage(image)
@@ -43,7 +43,7 @@ actual abstract class MessagePacket<TSender : QQ, TSubject : Contact> actual con
     // endregion
 
     // region 发送图片
-    suspend inline fun sendImage(image: BufferedImage): MessageReceipt<TSubject> = subject.sendImage(image)
+    suspend inline fun sendImage(image: JvmPlatformImage): MessageReceipt<TSubject> = subject.sendImage(image)
     suspend inline fun sendImage(image: URL): MessageReceipt<TSubject> = subject.sendImage(image)
     suspend inline fun sendImage(image: Input): MessageReceipt<TSubject> = subject.sendImage(image)
     suspend inline fun sendImage(image: InputStream): MessageReceipt<TSubject> = subject.sendImage(image)
@@ -51,7 +51,7 @@ actual abstract class MessagePacket<TSender : QQ, TSubject : Contact> actual con
     // endregion
 
     // region 上传图片 (扩展)
-    suspend inline fun BufferedImage.upload(): Image = upload(subject)
+    suspend inline fun JvmPlatformImage.upload(): Image = upload(subject)
     suspend inline fun URL.uploadAsImage(): Image = uploadAsImage(subject)
     suspend inline fun Input.uploadAsImage(): Image = uploadAsImage(subject)
     suspend inline fun InputStream.uploadAsImage(): Image = uploadAsImage(subject)
@@ -59,7 +59,7 @@ actual abstract class MessagePacket<TSender : QQ, TSubject : Contact> actual con
     // endregion 上传图片 (扩展)
 
     // region 发送图片 (扩展)
-    suspend inline fun BufferedImage.send(): MessageReceipt<TSubject> = sendTo(subject)
+    suspend inline fun JvmPlatformImage.send(): MessageReceipt<TSubject> = sendTo(subject)
     suspend inline fun URL.sendAsImage(): MessageReceipt<TSubject> = sendAsImageTo(subject)
     suspend inline fun Input.sendAsImage(): MessageReceipt<TSubject> = sendAsImageTo(subject)
     suspend inline fun InputStream.sendAsImage(): MessageReceipt<TSubject> = sendAsImageTo(subject)

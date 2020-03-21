@@ -22,6 +22,7 @@ import net.mamoe.mirai.utils.io.getRandomString
  * Android: 获取手机信息, 与 QQ 官方相同.
  * JVM: 部分为常量, 部分为随机
  */
+@Suppress("NO_ACTUAL_FOR_EXPECT")
 expect open class SystemDeviceInfo(context: Context) : DeviceInfo {
     companion object {
         fun serializer(): KSerializer<SystemDeviceInfo>
