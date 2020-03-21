@@ -3,6 +3,7 @@
 package net.mamoe.mirai.utils
 
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.js.Js
 import kotlinx.io.core.toByteArray
 import kotlin.js.Date
 
@@ -34,10 +35,7 @@ actual object MiraiPlatformUtils {
      * Ktor HttpClient. 不同平台使用不同引擎.
      */
     @MiraiInternalAPI
-    actual val Http: HttpClient
-        get() = TODO("Not yet implemented")
-
-
+    actual val Http: HttpClient = HttpClient(Js)
 }
 
 /**
