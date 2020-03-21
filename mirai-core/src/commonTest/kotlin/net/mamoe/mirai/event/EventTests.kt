@@ -53,7 +53,7 @@ class EventTests {
     open class ChildChildEvent : ChildEvent()
 
     @Test
-    fun `broadcast Child to Parent`() {
+    fun broadcastChildToParent() {
         runBlocking {
             val job: CompletableJob
             job = subscribeAlways<ParentEvent> {
@@ -66,7 +66,7 @@ class EventTests {
     }
 
     @Test
-    fun `broadcast ChildChild to Parent`() {
+    fun broadcastChildChildToParent() {
         runBlocking {
             val job: CompletableJob
             job = subscribeAlways<ParentEvent> {

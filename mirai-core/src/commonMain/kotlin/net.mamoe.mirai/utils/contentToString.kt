@@ -35,7 +35,7 @@ internal fun <T> Sequence<T>.joinToStringPrefixed(prefix: String, transform: (T)
  * `data class`: 调用其 [toString]
  * 其他类型: 反射获取它和它的所有来自 Mirai 的 super 类型的所有自有属性并递归调用 [_miraiContentToString]. 嵌套结构将会以缩进表示
  */
-@Suppress("FunctionName") // 这样就不容易被 IDE 提示
+@Suppress("FunctionName", "Unsupported", "UNSUPPORTED_REFLECTION_API") // 这样就不容易被 IDE 提示
 @MiraiDebugAPI("Extremely slow")
 //@Suppress("Unsupported") // false positive
 fun Any?._miraiContentToString(prefix: String = ""): String = when (this) {
@@ -109,7 +109,7 @@ fun Any?._miraiContentToString(prefix: String = ""): String = when (this) {
     ) { it.key._miraiContentToString(prefix) + "=" + it.value._miraiContentToString(prefix) }
     else -> {
         if (this == null) "null"
-        else if (this::class.isData) this.toString()
+        //else if (this::class.isData) this.toString()
         else {
             if (this::class.qualifiedName?.startsWith("net.mamoe.mirai.") == true) {
                 this.contentToStringReflectively(prefix + indent)
@@ -127,6 +127,7 @@ fun Any?._miraiContentToString(prefix: String = ""): String = when (this) {
 
 internal expect fun KProperty1<*, *>.getValueAgainstPermission(receiver: Any): Any?
 
+@Suppress("Unsupported", "UNSUPPORTED_REFLECTION_API")
 @MiraiDebugAPI
 private fun Any.contentToStringReflectively(prefix: String, filter: ((name: String, value: Any?) -> Boolean)? = null): String {
     val newPrefix = "$prefix    "
@@ -155,13 +156,14 @@ private fun Any.contentToStringReflectively(prefix: String, filter: ((name: Stri
                 } + "\n$prefix}"
 }
 
+@Suppress("Unsupported", "UNSUPPORTED_REFLECTION_API")
 private fun KClass<out Any>.thisClassAndSuperclassSequence(): Sequence<KClass<out Any>> {
     return sequenceOf(this) +
             this.supertypes.asSequence()
                 .mapNotNull { type -> type.classifier?.takeIf { it is KClass<*> }?.takeIf { it != Any::class } as? KClass<out Any> }.flatMap { it.thisClassAndSuperclassSequence() }
 }
 
-@Suppress("UNCHECKED_CAST")
+@Suppress("UNCHECKED_CAST", "Unsupported", "UNSUPPORTED_REFLECTION_API")
 private fun Any.allMembersFromSuperClassesMatching(classFilter: (KClass<out Any>) -> Boolean): Sequence<KProperty1<Any, *>> {
     return this::class.thisClassAndSuperclassSequence()
         .filter { classFilter(it) }

@@ -10,6 +10,7 @@
 package net.mamoe.mirai.utils.cryptor
 
 import net.mamoe.mirai.utils.io.chunkedHexToBytes
+import kotlin.js.JsName
 
 expect interface ECDHPrivateKey {
     fun getEncoded(): ByteArray
@@ -73,6 +74,7 @@ expect class ECDH(keyPair: ECDHKeyPair) {
     override fun toString(): String
 }
 
+@JsName("newECDH")
 @Suppress("FunctionName")
 expect fun ECDH(): ECDH
 

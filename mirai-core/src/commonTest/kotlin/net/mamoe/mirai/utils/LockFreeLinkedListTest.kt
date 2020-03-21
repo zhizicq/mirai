@@ -52,7 +52,7 @@ internal class LockFreeLinkedListTest {
 
     @Suppress("UNREACHABLE_CODE", "DeferredResultUnused")
     @Test
-    fun `so many concurrent add remove and foreach`() = runBlocking {
+    fun soManyConcurrentAddRemoveAndForeach() = runBlocking {
         return@runBlocking // 测试通过了, 加快速度. 因为 kotlin 一些其他 bug
         val list = LockFreeLinkedList<Int>()
 
@@ -147,7 +147,7 @@ internal class LockFreeLinkedListTest {
     }
 
     @Test
-    fun `filteringGetOrAdd when add`() {
+    fun filteringGetOrAddWhenAdd() {
         val list = LockFreeLinkedList<Int>()
         list.addAll(listOf(1, 2, 3, 4, 5))
         val value = list.filteringGetOrAdd({ it == 6 }, { 6 })
@@ -160,7 +160,7 @@ internal class LockFreeLinkedListTest {
     }
 
     @Test
-    fun `filteringGetOrAdd when get`() {
+    fun filteringGetOrAddWhenGet() {
         val list = LockFreeLinkedList<Int>()
         list.addAll(listOf(1, 2, 3, 4, 5))
         val value = list.filteringGetOrAdd({ it == 2 }, { 2 })
@@ -173,7 +173,7 @@ internal class LockFreeLinkedListTest {
     }
 
     @Test
-    fun `remove while foreach`() {
+    fun removeWhileForeach2() {
         val list = LockFreeLinkedList<Int>()
         list.addAll(listOf(1, 2, 3, 4, 5))
 
@@ -185,7 +185,7 @@ internal class LockFreeLinkedListTest {
     }
 
     @Test
-    fun `filteringGetOrAdd when empty`() {
+    fun filteringGetOrAddWhenEmpty() {
         val list = LockFreeLinkedList<Int>()
         val value = list.filteringGetOrAdd({ it == 2 }, { 2 })
 

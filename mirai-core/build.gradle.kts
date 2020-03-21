@@ -53,6 +53,7 @@ kotlin {
     }
 
     jvm()
+    js("nodeJs")
 
     sourceSets {
         all {
@@ -130,6 +131,19 @@ kotlin {
             }
         }
 
+        val nodeJsMain by getting {
+            dependencies {
+                api(kotlin("reflect", kotlinVersion))
+
+                api(ktor("client-core-js", ktorVersion))
+                api(kotlinx("io-js", kotlinXIoVersion))
+                api(kotlinx("serialization-runtime-js", serializationVersion))
+                api(kotlinx("serialization-protobuf-js", serializationVersion))
+                api(kotlinx("coroutines-io-js", coroutinesIoVersion))
+                api(kotlinx("coroutines-core-js", coroutinesVersion))
+            }
+        }
+
         val jvmTest by getting {
             dependencies {
                 implementation(kotlin("test", kotlinVersion))
@@ -137,6 +151,12 @@ kotlin {
                 implementation("org.pcap4j:pcap4j-distribution:1.8.2")
 
                 runtimeOnly(files("build/classes/kotlin/jvm/test")) // classpath is not properly set by IDE
+            }
+        }
+
+        val nodeJsTest by getting {
+            dependencies {
+                implementation(kotlin("test-js", kotlinVersion))
             }
         }
     }
