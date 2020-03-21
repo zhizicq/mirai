@@ -27,9 +27,7 @@ expect open class SystemDeviceInfo(context: Context) : DeviceInfo {
         fun serializer(): KSerializer<SystemDeviceInfo>
     }
 
-    object Version : DeviceInfo.Version {
-        fun serializer(): KSerializer<Version>
-    }
+    object Version : DeviceInfo.Version
 }
 
 @Serializable
