@@ -189,6 +189,8 @@ fun <R> Bot.subscribeFriendMessages(
 /**
  * 打开一个指定事件的接收通道
  *
+ * 要关闭通道, 使用 `(channel as Channel).close()`
+ *
  * @param capacity 同 [Channel] 的参数, 参见 [Channel.Factory] 中的常量.
  *
  * @see capacity 默认无限大小. 详见 [Channel.Factory] 中的常量 [Channel.UNLIMITED], [Channel.CONFLATED], [Channel.RENDEZVOUS].
