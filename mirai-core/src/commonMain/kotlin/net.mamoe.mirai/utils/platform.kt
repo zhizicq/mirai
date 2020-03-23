@@ -12,6 +12,8 @@
 package net.mamoe.mirai.utils
 
 import io.ktor.client.HttpClient
+import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 
 /**
  * 时间戳
@@ -26,20 +28,29 @@ inline val currentTimeSeconds: Long get() = currentTimeMillis / 1000
  */
 @MiraiInternalAPI
 expect object MiraiPlatformUtils {
+    @JvmStatic
+    @JvmOverloads
     fun unzip(data: ByteArray, offset: Int = 0, length: Int = data.size - offset): ByteArray
 
+    @JvmStatic
+    @JvmOverloads
     fun zip(data: ByteArray, offset: Int = 0, length: Int = data.size - offset): ByteArray
 
 
+    @JvmStatic
+    @JvmOverloads
     fun md5(data: ByteArray, offset: Int = 0, length: Int = data.size - offset): ByteArray
 
+    @JvmStatic
     inline fun md5(str: String): ByteArray
 
+    @JvmStatic
     fun localIpAddress(): String
 
     /**
      * Ktor HttpClient. 不同平台使用不同引擎.
      */
+    @JvmStatic
     @MiraiInternalAPI
     val Http: HttpClient
 }
