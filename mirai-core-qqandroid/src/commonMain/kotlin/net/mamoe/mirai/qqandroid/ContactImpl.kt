@@ -7,21 +7,13 @@
  * https://github.com/mamoe/mirai/blob/master/LICENSE
  */
 
+@file: Suppress("INAPPLICABLE_JVM_NAME")
+
 package net.mamoe.mirai.qqandroid
 
-import io.ktor.client.HttpClient
-import io.ktor.client.request.*
-import io.ktor.client.request.forms.MultiPartFormDataContent
-import io.ktor.client.request.forms.formData
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.io.core.Closeable
-import kotlinx.serialization.MissingFieldException
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
-import kotlinx.serialization.json.int
-import kotlinx.serialization.json.long
 import net.mamoe.mirai.LowLevelAPI
 import net.mamoe.mirai.contact.*
 import net.mamoe.mirai.data.*
@@ -30,10 +22,7 @@ import net.mamoe.mirai.event.events.*
 import net.mamoe.mirai.event.events.MessageSendEvent.FriendMessageSendEvent
 import net.mamoe.mirai.event.events.MessageSendEvent.GroupMessageSendEvent
 import net.mamoe.mirai.message.MessageReceipt
-import net.mamoe.mirai.message.data.MessageChain
-import net.mamoe.mirai.message.data.MessageSource
-import net.mamoe.mirai.message.data.OfflineFriendImage
-import net.mamoe.mirai.message.data.OfflineGroupImage
+import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.qqandroid.message.MessageSourceFromSendGroup
 import net.mamoe.mirai.qqandroid.network.highway.HighwayHelper
 import net.mamoe.mirai.qqandroid.network.highway.postImage
@@ -45,11 +34,12 @@ import net.mamoe.mirai.qqandroid.network.protocol.packet.chat.image.LongConn
 import net.mamoe.mirai.qqandroid.network.protocol.packet.chat.receive.MessageSvc
 import net.mamoe.mirai.qqandroid.utils.toIpV4AddressString
 import net.mamoe.mirai.utils.*
-import net.mamoe.mirai.utils.io.encodeToString
 import net.mamoe.mirai.utils.io.toUHexString
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.coroutines.CoroutineContext
+import kotlin.jvm.JvmName
+import kotlin.jvm.JvmSynthetic
 import net.mamoe.mirai.qqandroid.network.protocol.data.jce.FriendInfo as JceFriendInfo
 
 internal inline class FriendInfoImpl(
@@ -69,8 +59,11 @@ internal class QQImpl(
     override val nick: String
         get() = friendInfo.nick
 
-    override suspend fun sendMessage(message: MessageChain): MessageReceipt<QQ> {
-        val event = FriendMessageSendEvent(this, message).broadcast()
+    @JvmName("sendMessageSuspend")
+    @JvmSynthetic
+    @Suppress("DuplicatedCode")
+    override suspend fun sendMessage(message: Message): MessageReceipt<out QQ> {
+        val event = FriendMessageSendEvent(this, message.asMessageChain()).broadcast()
         if (event.isCancelled) {
             throw EventCancelledException("cancelled by FriendMessageSendEvent")
         }
@@ -89,6 +82,15 @@ internal class QQImpl(
         return MessageReceipt(source, this, null)
     }
 
+    @JvmName("sendMessageSuspend")
+    @JvmSynthetic
+    @Deprecated("for binary compatibility", level = DeprecationLevel.HIDDEN)
+    override suspend fun sendMessage(message: MessageChain): MessageReceipt<out QQ> {
+        return this.sendMessage(message as Message)
+    }
+
+    @JvmName("uploadImageSuspend")
+    @JvmSynthetic
     @OptIn(MiraiInternalAPI::class)
     override suspend fun uploadImage(image: ExternalImage): OfflineFriendImage = try {
         if (BeforeImageUploadEvent(this, image).broadcast().isCancelled) {
@@ -220,7 +222,38 @@ internal class MemberImpl(
     @MiraiExperimentalAPI
     override suspend fun queryRemark(): FriendNameRemark = qq.queryRemark()
 
-    override suspend fun sendMessage(message: MessageChain): MessageReceipt<QQ> = qq.sendMessage(message)
+    @JvmName("sendMessageSuspend")
+    @JvmSynthetic
+    @Suppress("DuplicatedCode")
+    override suspend fun sendMessage(message: Message): MessageReceipt<Member> {
+        val event = FriendMessageSendEvent(this, message.asMessageChain()).broadcast()
+        if (event.isCancelled) {
+            throw EventCancelledException("cancelled by FriendMessageSendEvent")
+        }
+        lateinit var source: MessageSource
+        bot.network.run {
+            check(
+                MessageSvc.PbSendMsg.ToFriend(
+                    bot.client,
+                    id,
+                    event.message
+                ) {
+                    source = it
+                }.sendAndExpect<MessageSvc.PbSendMsg.Response>() is MessageSvc.PbSendMsg.Response.SUCCESS
+            ) { "send message failed" }
+        }
+        return MessageReceipt(source, this, null)
+    }
+
+    @JvmName("sendMessageSuspend")
+    @JvmSynthetic
+    @Deprecated("for binary compatibility", level = DeprecationLevel.HIDDEN)
+    override suspend fun sendMessage(message: MessageChain): MessageReceipt<out QQ> {
+        return this.sendMessage(message as Message)
+    }
+
+    @JvmName("uploadImageSuspend")
+    @JvmSynthetic
     override suspend fun uploadImage(image: ExternalImage): OfflineFriendImage = qq.uploadImage(image)
     // endregion
 
@@ -284,6 +317,8 @@ internal class MemberImpl(
 
     override val bot: QQAndroidBot get() = qq.bot
 
+    @JvmName("muteSuspend")
+    @JvmSynthetic
     override suspend fun mute(durationSeconds: Int) {
         if (group.botPermission != MemberPermission.OWNER && (!group.botPermission.isOperator() || this.isOperator())) {
             throw PermissionDeniedException()
@@ -302,6 +337,8 @@ internal class MemberImpl(
         net.mamoe.mirai.event.events.MemberMuteEvent(this@MemberImpl, durationSeconds, null).broadcast()
     }
 
+    @JvmName("unmuteSuspend")
+    @JvmSynthetic
     override suspend fun unmute() {
         if (group.botPermission != MemberPermission.OWNER && (!group.botPermission.isOperator() || this.isOperator())) {
             throw PermissionDeniedException()
@@ -320,6 +357,8 @@ internal class MemberImpl(
         net.mamoe.mirai.event.events.MemberUnmuteEvent(this@MemberImpl, null).broadcast()
     }
 
+    @JvmName("kickSuspend")
+    @JvmSynthetic
     override suspend fun kick(message: String) {
         if (group.botPermission != MemberPermission.OWNER && (!group.botPermission.isOperator() || this.isOperator())) {
             throw PermissionDeniedException()
@@ -386,10 +425,7 @@ internal class GroupImpl(
     groupInfo: GroupInfo,
     members: Sequence<MemberInfo>
 ) : Group() {
-    @Suppress("\"RemoveEmptyClassBody\"") // things will go wrong after removal, don't try
-    companion object {
-
-    }
+    companion object;
 
     override val bot: QQAndroidBot by bot.unsafeWeakRef()
     val uin: Long = groupInfo.uin
@@ -595,9 +631,11 @@ internal class GroupImpl(
         return members.delegate.filteringGetOrNull { it.id == id }
     }
 
-    override suspend fun sendMessage(message: MessageChain): MessageReceipt<Group> {
+    @JvmName("sendMessageSuspend")
+    @JvmSynthetic
+    override suspend fun sendMessage(message: Message): MessageReceipt<Group> {
         check(!isBotMuted) { "bot is muted. Remaining seconds=$botMuteRemaining" }
-        val event = GroupMessageSendEvent(this, message).broadcast()
+        val event = GroupMessageSendEvent(this, message.asMessageChain()).broadcast()
         if (event.isCancelled) {
             throw EventCancelledException("cancelled by FriendMessageSendEvent")
         }
@@ -619,6 +657,16 @@ internal class GroupImpl(
         return MessageReceipt(source, this, botAsMember)
     }
 
+    @JvmName("sendMessageSuspend")
+    @JvmSynthetic
+    @Deprecated("for binary compatibility", level = DeprecationLevel.HIDDEN)
+    override suspend fun sendMessage(message: MessageChain): MessageReceipt<Group> {
+        return this.sendMessage(message as Message)
+    }
+
+
+    @JvmName("uploadImageSuspend")
+    @JvmSynthetic
     override suspend fun uploadImage(image: ExternalImage): OfflineGroupImage = try {
         if (BeforeImageUploadEvent(this, image).broadcast().isCancelled) {
             throw EventCancelledException("cancelled by BeforeImageUploadEvent.ToGroup")
