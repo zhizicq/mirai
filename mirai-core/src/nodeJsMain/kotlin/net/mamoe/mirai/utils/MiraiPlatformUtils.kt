@@ -13,23 +13,39 @@ import kotlin.js.Date
  */
 @MiraiInternalAPI
 actual object MiraiPlatformUtils {
-    actual fun unzip(data: ByteArray, offset: Int, length: Int): ByteArray {
-        TODO("Not yet implemented")
+    init {
+        js("""var zlib = require("zlib");""")
     }
 
-    actual fun zip(data: ByteArray, offset: Int, length: Int): ByteArray {
-        TODO("Not yet implemented")
-    }
+    private val zlibUnzip: dynamic = js(
+        """
+            function unzip(data, start, end) {
+                return zlib.unzipSync(Buffer.from(data.slice(start, end)))
+            }
+        """
+    )
+
+    private val zlibZip: dynamic = js(
+        """
+            function zip(data, start, end) {
+                return zlib.gzipSync(Buffer.from(data.slice(start, end)))
+            }
+        """
+    )
+
+    actual fun unzip(data: ByteArray, offset: Int, length: Int): ByteArray =
+        zlibUnzip(data, offset, offset + length) as ByteArray
+
+    actual fun zip(data: ByteArray, offset: Int, length: Int): ByteArray =
+        zlibZip(data, offset, offset + length) as ByteArray
 
     actual fun md5(data: ByteArray, offset: Int, length: Int): ByteArray {
-        TODO("Not yet implemented")
+        TODO()
     }
 
     actual inline fun md5(str: String): ByteArray = md5(str.toByteArray())
 
-    actual fun localIpAddress(): String {
-        TODO("Not yet implemented")
-    }
+    actual fun localIpAddress(): String = "192.168.1.123"
 
     /**
      * Ktor HttpClient. 不同平台使用不同引擎.
