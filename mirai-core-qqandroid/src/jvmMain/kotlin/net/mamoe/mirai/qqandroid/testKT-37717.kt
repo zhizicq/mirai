@@ -33,8 +33,11 @@ suspend fun main() {
         // as a workaround, go to net.mamoe.mirai/event/select.kt:103
         // and remove `@BuilderInference`
         val s: String = selectMessages {
+
+            // or you can remove this `has` function
             has<OnlineImage>() {
                 message[OnlineImage].originUrl
+                // note: this expression isn't resolved
             }
 
             default {
