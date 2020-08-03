@@ -145,23 +145,23 @@ internal class NewContact {
             readBytes().loadAs(Structmsg.RspSystemMsgNew.serializer()).run {
                 val struct = groupmsgs?.firstOrNull()
 
-                return struct?.msg?.run<Structmsg.SystemMsg, Packet> {
+                return struct?.msg?.run {
                     //this.soutv("SystemMsg")
                     when (subType) {
-                        1 -> { //管理员邀请
-                            when (c2cInviteJoinGroupFlag) {
+                        1 -> { // 处理被邀请入群 或 处理成员入群申请
+                            when (groupMsgType) {
                                 1 -> {
-                                    // 被邀请入群
-                                    BotInvitedJoinGroupRequestEvent(
-                                        bot, struct.msgSeq, actionUin,
-                                        groupCode, groupName, actionUinNick
-                                    )
-                                }
-                                0 -> {
                                     // 成员申请入群
                                     MemberJoinRequestEvent(
                                         bot, struct.msgSeq, msgAdditional,
                                         struct.reqUin, groupCode, groupName, reqUinNick
+                                    )
+                                }
+                                2 -> {
+                                    // 被邀请入群
+                                    BotInvitedJoinGroupRequestEvent(
+                                        bot, struct.msgSeq, actionUin,
+                                        groupCode, groupName, actionUinNick
                                     )
                                 }
                                 else -> throw contextualBugReportException(
@@ -171,18 +171,36 @@ internal class NewContact {
                                 )
                             }
                         }
-                        2 -> {
-                            // 被邀请入群, 自动同意
+                        2 -> { // 被邀请入群, 自动同意, 不需处理
 
                             val group = bot.getNewGroup(groupCode) ?: return null
                             val invitor = group[actionUin]
 
                             BotJoinGroupEvent.Invite(invitor)
                         }
+                        3 -> { // 已被请他管理员处理
+                            null
+                        }
                         5 -> {
                             val group = bot.getGroupOrNull(groupCode) ?: return null
-                            val operator = group[actionUin]
-                            BotLeaveEvent.Kick(operator)
+                            when (groupMsgType) {
+                                13 -> { // 成员主动退出, 机器人是管理员, 接到通知
+                                    // 但无法获取是哪个成员.
+                                    null
+                                }
+                                7 -> { // 机器人被踢
+                                    val operator = group[actionUin]
+                                    BotLeaveEvent.Kick(operator)
+                                }
+                                else -> {
+                                    throw contextualBugReportException(
+                                        "解析 NewContact.SystemMsgNewGroup, subType=5",
+                                        this._miraiContentToString(),
+                                        null,
+                                        "并描述此时机器人是否被踢出群等"
+                                    )
+                                }
+                            }
                         }
                         else -> throw contextualBugReportException(
                             "parse SystemMsgNewGroup",
@@ -190,7 +208,7 @@ internal class NewContact {
                             additional = "并尽量描述此时机器人是否正被邀请加入群, 或者是有有新群员加入此群"
                         )
                     }
-                } as Packet // 没有 as Packet 垃圾 kotlin 会把类型推断为Any
+                }
             }
         }
 
@@ -203,7 +221,8 @@ internal class NewContact {
                 groupId: Long,
                 isInvited: Boolean,
                 accept: Boolean?,
-                blackList: Boolean = false
+                blackList: Boolean = false,
+                message: String = ""
             ) =
                 buildOutgoingUniPacket(client) {
                     writeProtoBuf(
@@ -216,7 +235,7 @@ internal class NewContact {
                                     false -> 12 // reject
                                 },
                                 groupCode = groupId,
-                                msg = "",
+                                msg = message,
                                 remark = "",
                                 blacklist = blackList
                             ),

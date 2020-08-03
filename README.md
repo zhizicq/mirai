@@ -14,7 +14,7 @@ Mirai 是一个在全平台下运行，提供 QQ Android 和 TIM PC 协议支持
 这个项目的名字来源于
      <p><a href = "http://www.kyotoanimation.co.jp/">京都动画</a>作品<a href = "https://zh.moegirl.org/zh-hans/%E5%A2%83%E7%95%8C%E7%9A%84%E5%BD%BC%E6%96%B9">《境界的彼方》</a>的<a href = "https://zh.moegirl.org/zh-hans/%E6%A0%97%E5%B1%B1%E6%9C%AA%E6%9D%A5">栗山未来(Kuriyama <b>Mirai</b>)</a></p>
      <p><a href = "https://www.crypton.co.jp/">CRYPTON</a>以<a href = "https://www.crypton.co.jp/miku_eng">初音未来</a>为代表的创作与活动<a href = "https://magicalmirai.com/2019/index_en.html">(Magical <b>Mirai</b>)</a></p>
-图标以及形象由画师<a href = "">DazeCake</a>绘制
+图标以及形象由画师<a href = "https://github.com/DazeCake">DazeCake</a>绘制
 </div>
 
 ## Mirai
@@ -34,7 +34,7 @@ mirai 既可以作为项目中的 QQ 协议支持库, 也可以作为单独的�
 ## 协议支持
 
 <details>
-  <summary>支持的协议协议列表</summary>
+  <summary>支持的协议列表</summary>
 
 | 消息相关                    | 支持              |
 |:----------------------|:----------------|
@@ -78,6 +78,7 @@ mirai 既可以作为项目中的 QQ 协议支持库, 也可以作为单独的�
 ## 开始
 
 ### 文档
+- **快速上手**：[quickstart](docs/guide_quick_start.md)
 - **开发文档**：[docs/mirai.md](docs/mirai.md)
 - **常见问题**: [docs/FAQ.md](docs/FAQ.md)
 - **更新日志**: [CHANGELOG](https://github.com/mamoe/mirai/blob/master/CHANGELOG.md) 或 [release](https://github.com/mamoe/mirai/releases)
@@ -105,7 +106,7 @@ mirai 既可以作为项目中的 QQ 协议支持库, 也可以作为单独的�
 
 基于 `mirai-http-api` (配合 [mirai-console](https://github.com/mamoe/mirai-console)):
 
-- `Python`: [python-mirai](https://github.com/NatriumLab/python-mirai) 基于 `mirai-api-http` 的机器人开发框架
+- `Python`: [Graia Framework](https://github.com/GraiaProject/Application) 基于 `mirai-api-http` 的机器人开发框架
 - `JavaScript`(`Node.js`): [node-mirai](https://github.com/RedBeanN/node-mirai) mirai 的 Node.js SDK
 - `Go`: [gomirai](https://github.com/Logiase/gomirai) 基于 mirai-api-http 的 GoLang SDK
 - `Mozilla Rhino`: [mirai-rhinojs-sdk](https://github.com/StageGuard/mirai-rhinojs-sdk) 为基于 Rhino(如 Auto.js 等安卓 app 或运行环境)的 JavaScript 提供简单易用的 SDK
@@ -113,6 +114,9 @@ mirai 既可以作为项目中的 QQ 协议支持库, 也可以作为单独的�
 - `C++`: [miraipp](https://github.com/Chlorie/miraipp-template) mirai-http-api 的另一个 C++ 封装，使用现代 C++ 特性，并提供了较完善的说明文档
 - `C#`: [Mirai-CSharp](https://github.com/Executor-Cheng/Mirai-CSharp) 基于 mirai-api-http 的 C# SDK
 - `Rust`: [mirai-rs](https://github.com/HoshinoTented/mirai-rs) mirai-http-api 的 Rust 封装
+- `TypeScript`: [mirai-ts](https://github.com/YunYouJun/mirai-ts) mirai-api-http 的 TypeScript SDK，附带声明文件，拥有良好的注释和类型提示，也可作为 JavaScript SDK 使用。
+- `易语言`: [e-mirai](https://github.com/only52607/e-mirai) mirai-api-http 的 易语言 SDK，使用全中文环境开发插件，适合编程新手使用。
+- `.Net/C#`: [Hyperai](https://github.com/theGravityLab/ProjHyperai) 从 mirai-api-http 对接到机器人开发框架再到开箱即用的插件式机器人程序一应俱全。
 
 </details>
 
@@ -132,6 +136,7 @@ Demos: [mirai-demos](https://github.com/mamoe/mirai-demos)
 
 - 酷Q的插件可以在 mirai 中加载, 详见 [Mirai-Native](https://github.com/iTXTech/mirai-native)
 - 使用 `酷Q HTTP API` 的插件将可以在 mirai 中加载，`Mirai-CQ-Adapter` 正在进行中
+
 
 ## [贡献](CONTRIBUTING.md)
 

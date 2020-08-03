@@ -19,9 +19,6 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.async
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.UnstableDefault
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.json.int
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.LowLevelAPI
@@ -147,6 +144,12 @@ internal class QQAndroidBot constructor(
     @Suppress("DuplicatedCode")
     @OptIn(LowLevelAPI::class)
     override suspend fun rejectMemberJoinRequest(event: MemberJoinRequestEvent, blackList: Boolean) {
+        rejectMemberJoinRequest(event, blackList, "")
+    }
+
+    @Suppress("DuplicatedCode")
+    @OptIn(LowLevelAPI::class)
+    override suspend fun rejectMemberJoinRequest(event: MemberJoinRequestEvent, blackList: Boolean, message: String) {
         checkGroupPermission(event.bot, event.group) { event::class.simpleName ?: "<anonymous class>" }
         check(event.responded.compareAndSet(false, true)) {
             "the request $this has already been responded"
@@ -162,7 +165,8 @@ internal class QQAndroidBot constructor(
             fromNick = event.fromNick,
             groupId = event.groupId,
             accept = false,
-            blackList = blackList
+            blackList = blackList,
+            message = message
         )
     }
 
@@ -241,10 +245,7 @@ internal abstract class QQAndroidBotBase constructor(
     override val id: Long
         get() = account.id
 
-    companion object {
-        @OptIn(UnstableDefault::class)
-        val json = Json(JsonConfiguration(ignoreUnknownKeys = true, encodeDefaults = true))
-    }
+    private inline val json get() = configuration.json
 
     override val friends: ContactList<Friend> = ContactList(LockFreeLinkedList())
 
@@ -584,13 +585,15 @@ internal abstract class QQAndroidBotBase constructor(
 
     @LowLevelAPI
     @MiraiExperimentalAPI
-    override suspend fun _lowLevelGetGroupActiveData(groupId: Long): GroupActiveData {
+    override suspend fun _lowLevelGetGroupActiveData(groupId: Long, page: Int): GroupActiveData {
         val data = network.async {
             HttpClient().get<String> {
                 url("https://qqweb.qq.com/c/activedata/get_mygroup_data")
                 parameter("bkn", bkn)
                 parameter("gc", groupId)
-
+                if (page != -1) {
+                    parameter("page", page)
+                }
                 headers {
                     append(
                         "cookie",
@@ -711,7 +714,13 @@ internal abstract class QQAndroidBotBase constructor(
 
     @LowLevelAPI
     @MiraiExperimentalAPI
-    override suspend fun _lowLevelSolveNewFriendRequestEvent(eventId: Long, fromId: Long, fromNick: String, accept: Boolean, blackList: Boolean) {
+    override suspend fun _lowLevelSolveNewFriendRequestEvent(
+        eventId: Long,
+        fromId: Long,
+        fromNick: String,
+        accept: Boolean,
+        blackList: Boolean
+    ) {
         network.apply {
             NewContact.SystemMsgNewFriend.Action(
                 bot.client,
@@ -755,7 +764,8 @@ internal abstract class QQAndroidBotBase constructor(
         fromNick: String,
         groupId: Long,
         accept: Boolean?,
-        blackList: Boolean
+        blackList: Boolean,
+        message: String
     ) {
         network.apply {
             NewContact.SystemMsgNewGroup.Action(
@@ -765,18 +775,20 @@ internal abstract class QQAndroidBotBase constructor(
                 groupId = groupId,
                 isInvited = false,
                 accept = accept,
-                blackList = blackList
+                blackList = blackList,
+                message = message
             ).sendWithoutExpect()
-            groups[groupId].apply {
-                members.delegate.addLast(newMember(object : MemberInfo {
-                    override val nameCard: String get() = ""
-                    override val permission: MemberPermission get() = MemberPermission.MEMBER
-                    override val specialTitle: String get() = ""
-                    override val muteTimestamp: Int get() = 0
-                    override val uin: Long get() = fromId
-                    override val nick: String get() = fromNick
-                }))
-            }
+            if (accept ?: return)
+                groups[groupId].apply {
+                    members.delegate.addLast(newMember(object : MemberInfo {
+                        override val nameCard: String get() = ""
+                        override val permission: MemberPermission get() = MemberPermission.MEMBER
+                        override val specialTitle: String get() = ""
+                        override val muteTimestamp: Int get() = 0
+                        override val uin: Long get() = fromId
+                        override val nick: String get() = fromNick
+                    }))
+                }
         }
     }
 

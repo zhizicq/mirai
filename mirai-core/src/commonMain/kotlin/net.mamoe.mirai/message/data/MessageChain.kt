@@ -17,10 +17,7 @@ import net.mamoe.mirai.JavaFriendlyAPI
 import net.mamoe.mirai.message.MessageEvent
 import net.mamoe.mirai.utils.PlannedRemoval
 import kotlin.js.JsName
-import kotlin.jvm.JvmMultifileClass
-import kotlin.jvm.JvmName
-import kotlin.jvm.JvmOverloads
-import kotlin.jvm.JvmSynthetic
+import kotlin.jvm.*
 import kotlin.reflect.KProperty
 
 /**
@@ -80,7 +77,7 @@ interface MessageChain : Message, List<SingleMessage>, RandomAccess {
      * @see MessageChain.getOrFail 在找不到此类型的元素时抛出 [NoSuchElementException]
      */
     @JvmName("first")
-    final operator fun <M : Message> get(key: Message.Key<M>): M? = firstOrNull(key)
+    operator fun <M : Message> get(key: Message.Key<M>): M? = firstOrNull(key)
 
     /**
      * 遍历每一个有内容的消息, 即 [At], [AtAll], [PlainText], [Image], [Face] 等
@@ -88,21 +85,16 @@ interface MessageChain : Message, List<SingleMessage>, RandomAccess {
      */
     @JvmName("forEachContent")
     @JavaFriendlyAPI
-    final fun __forEachContentForJava__(block: (Message) -> Unit) = this.forEachContent(block)
-
-
-    @PlannedRemoval("1.1.0")
-    @Deprecated("use Java 8 API", level = DeprecationLevel.HIDDEN)
-    @JvmName("forEach")
-    @JavaFriendlyAPI
-    @JvmSynthetic
-    @kotlin.internal.LowPriorityInOverloadResolution
-    final fun __forEachForJava__(block: (Message) -> Unit) = this.forEach(block)
+    fun __forEachContentForJava__(block: (Message) -> Unit) = this.forEachContent(block)
 
     @PlannedRemoval("1.2.0")
     @JvmName("firstOrNull")
-    @Deprecated("use get instead. This is going to be removed in mirai 1.2.0", ReplaceWith("get(key)"))
-    final fun <M : Message> getOrNull(key: Message.Key<M>): M? = get(key)
+    @Deprecated(
+        "use get instead. This is going to be removed in mirai 1.2.0",
+        ReplaceWith("get(key)"),
+        level = DeprecationLevel.ERROR
+    )
+    fun <M : Message> getOrNull(key: Message.Key<M>): M? = get(key)
 }
 
 // region accessors
@@ -227,7 +219,8 @@ inline operator fun <reified T : Message> MessageChain.getValue(thisRef: Any?, p
  * 可空的委托
  * @see orNull
  */
-inline class OrNullDelegate<out R : Message?>(private val value: Any?) {
+@Suppress("NON_PUBLIC_PRIMARY_CONSTRUCTOR_OF_INLINE_CLASS")
+inline class OrNullDelegate<out R> @PublishedApi internal constructor(@JvmField @PublishedApi internal val value: Any?) {
     @Suppress("UNCHECKED_CAST")
     operator fun getValue(thisRef: Any?, property: KProperty<*>): R = value as R
 }
@@ -262,10 +255,9 @@ inline fun <reified T : Message> MessageChain.orNull(): OrNullDelegate<T?> =
  */
 @Suppress("RemoveExplicitTypeArguments")
 @JvmSynthetic
-inline fun <reified T : Message?> MessageChain.orElse(
-    lazyDefault: () -> T
-): OrNullDelegate<T> =
-    OrNullDelegate<T>(this.firstIsInstanceOrNull<T>() ?: lazyDefault())
+inline fun <reified T : R, R : Message?> MessageChain.orElse(
+    lazyDefault: () -> R
+): OrNullDelegate<R> = OrNullDelegate<R>(this.firstIsInstanceOrNull<T>() ?: lazyDefault())
 
 // endregion delegate
 
@@ -413,8 +405,8 @@ inline fun Array<out SingleMessage>.flatten(): Sequence<SingleMessage> = this.as
  * 扁平化 [Message]
  *
  * 对于不同类型的接收者（receiver）:
- * - `CombinedMessage(A, B)` 返回 `A <- B`
- * - `MessageChain(E, F, G)` 返回 `E <- F <- G`
+ * - [CombinedMessage]`(A, B)` 返回 `A <- B`
+ * - `[MessageChain](E, F, G)` 返回 `E <- F <- G`
  * - 其他: 返回 `sequenceOf(this)`
  */
 fun Message.flatten(): Sequence<SingleMessage> {

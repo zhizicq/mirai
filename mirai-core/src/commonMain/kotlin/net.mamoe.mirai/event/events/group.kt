@@ -9,7 +9,7 @@
 
 @file:JvmMultifileClass
 @file:JvmName("BotEventsKt")
-@file:Suppress("unused", "FunctionName", "INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
+@file:Suppress("unused", "FunctionName", "INVISIBLE_REFERENCE", "INVISIBLE_MEMBER", "DEPRECATION_ERROR")
 
 package net.mamoe.mirai.event.events
 
@@ -37,6 +37,7 @@ sealed class BotLeaveEvent : BotEvent, Packet, AbstractEvent() {
     /**
      * 机器人主动退出一个群.
      */
+    @MiraiExperimentalAPI("目前此事件类型不一定正确. 部分被踢出情况也会广播此事件.")
     data class Active internal constructor(override val group: Group) : BotLeaveEvent() {
         override fun toString(): String = "BotLeaveEvent.Active(group=${group.id})"
     }
@@ -44,6 +45,7 @@ sealed class BotLeaveEvent : BotEvent, Packet, AbstractEvent() {
     /**
      * 机器人被管理员或群主踢出群.
      */
+    @MiraiExperimentalAPI("BotLeaveEvent 的子类可能在将来改动. 使用 BotLeaveEvent 以保证兼容性.")
     data class Kick internal constructor(override val operator: Member) : BotLeaveEvent(), GroupOperableEvent {
         override val group: Group get() = operator.group
         override val bot: Bot get() = super<BotLeaveEvent>.bot
@@ -353,7 +355,8 @@ data class MemberJoinRequestEvent internal constructor(
     suspend fun accept() = bot.acceptMemberJoinRequest(this)
 
     @JvmSynthetic
-    suspend fun reject(blackList: Boolean = false) = bot.rejectMemberJoinRequest(this, blackList)
+    @JvmOverloads
+    suspend fun reject(blackList: Boolean = false, message: String = "") = bot.rejectMemberJoinRequest(this, blackList, message)
 
     @JvmSynthetic
     suspend fun ignore(blackList: Boolean = false) = bot.ignoreMemberJoinRequest(this, blackList)
@@ -366,8 +369,8 @@ data class MemberJoinRequestEvent internal constructor(
     @JavaFriendlyAPI
     @JvmOverloads
     @JvmName("reject")
-    fun __rejectBlockingForJava__(blackList: Boolean = false) =
-        runBlocking { bot.rejectMemberJoinRequest(this@MemberJoinRequestEvent, blackList) }
+    fun __rejectBlockingForJava__(blackList: Boolean = false, message: String = "") =
+        runBlocking { bot.rejectMemberJoinRequest(this@MemberJoinRequestEvent, blackList, message) }
 
     @JavaFriendlyAPI
     @JvmOverloads

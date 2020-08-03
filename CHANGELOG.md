@@ -1,5 +1,70 @@
 # Version 1.x
 
+## `1.1.3`  2020/7/17
+- 修复 ListenerHost Java 兼容性问题  (#443, #446 by [@Karlatemp](https://github.com/Karlatemp))
+
+## `1.1.2`  2020/7/16
+- 修复 JvmMethodEvents `T.registerEvents` 注册时错误判断 `@NotNull` 注解的问题 (#436)
+
+## `1.1.1`  2020/7/11
+- 修复最后一个 mirai 码之后的消息无法解析的问题 (#431 [@cxy654849388](https://github.com/cxy654849388))
+
+## `1.1.0`  2020/7/9
+- 支持 Android 手表协议 (`BotConfiguration.MiraiProtocol.ANDROID_WATCH`)
+- `EventHandler` 现在支持 `Nothing` 类型.
+- 修复无需同意直接进群时，在加载新群信息完成前收到消息过早处理的问题 (#370)
+- 修复在某些情况下，管理员邀请群Bot加群会被误判为群成员申请加群的问题 (#402 by [@kenvix](https://github.com/kenvix))
+- 修复从其他客户端加群时未同步的问题 (#404, #410)
+- 修复 `ConfigPushSvc.PushReq` 解析失败的问题 (#417)
+- 修复 `_lowLevelGetGroupActiveData`
+- 修复 `SimpleListenerHost.coroutineScope` 潜在的 Job 被覆盖的问题
+
+## `1.0.4` 2020/7/2
+- 修复上传图片失败时内存泄露的问题 (#385)
+- 修复大量图片同时上传时出错的问题 (#387)
+- 修复在一些情况下 BotOfflineEvent 没有正常处理而无法继续接收消息的问题 (#376)
+- 修复 Bot 在某个群 T 出某个人导致 Bot 终止的问题 (#372)
+- 修复 `@PlannedRemoval` 的文档
+
+## `1.1-EA2` 2020/7/2
+
+- 添加 `BotConfiguration.json`, 作为序列化时使用的 Json format, 修复潜在的因 kotlinx.serialization 进行不兼容更新而导致的不兼容.
+
+**不兼容变更**:
+- Image.imageId 后缀由 `.mirai` 变为图片文件实际类型, 如 `.png`, `.jpg`. 兼容原 `.mirai` 后缀.
+
+**修复**:
+- ([1.0.4](https://github.com/mamoe/mirai/releases/tag/1.0.4) 中修复的问题)
+- ([1.0.3](https://github.com/mamoe/mirai/releases/tag/1.0.3) 中修复的问题)
+
+## `1.0.3` 2020/6/29
+- 修复 friendlist.GetTroopListReqV2：java.lang.IllegalStateException: type mismatch 10 (#405)
+
+## `1.1-EA` 2020/6/16
+
+**主要**:
+- 添加实验性 `CodableMessage` 作为支持 mirai 码的 `Message` 的接口.
+- 支持 [mirai 码](docs\mirai-code-specification.md) 解析; 新模块 [`mirai-serialization`](mirai-serialization)
+- 实现 `MessagePreSendEvent` 和 `MessagePostSendEvent` (#339).
+
+**不兼容变更**:
+- 重命名实验性 API `CustomMessage.Factory.serialize` 到 `CustomMessage.Factory.dump`
+- 重命名实验性 API `CustomMessage.Factory.deserialize` 到 `CustomMessage.Factory.load`
+- 弃用 `MessageSendEvent` (#339). 迁移计划: WARNING in 1.1.0, ERROR in 1.2.0, REMOVE in 1.3.0
+- 调整 `VipFace` 的 mirai 码表示, 详见 mirai 码规范
+- `Face.toString()` 现在返回表情名称, 如 "\[偷笑\]", 而不是 "\[表情\]" (#345 @goldimax)
+
+**优化和修复**:
+
+- 修复群头像的获取不正确的问题 (#340)
+- 将 `PttMessage` 与 `Voice` 标注 `@MiraiExperimentalAPI` (missing)
+- 删除 `Message.plus(another: Flow<Message>)` 的 `@ExperimentalCoroutinesApi`
+- 提升发送群消息的稳定性
+- 一些文档优化
+- 其他内部优化
+- 提升在上个版本中弃用的 API 的弃用等级
+
+
 ## `1.0.2` 2020/6/1
 - 新增 `Bot.botInstancesSequence`
 - 修复日志中的时间未更新的问题
@@ -20,7 +85,7 @@
 ## `1.0.0` 2020/5/22
 
 - `ContactOrBot` 现在继承 `CoroutineScope`
-- 在没有手动指定 `deviceInfo` 时构建 Bot 将会发出警告, 须手动选择使用 `randomDeviceInfo` 或 `fileBasedDeviceInfo` 或自定义, 详见 [BotConfiguration.kt: Lines 69-72](mirai-core/src/commonMain/kotlin/net.mamoe.mirai/utils/BotConfiguration.kt#L69-L72)
+- 在没有手动指定 `deviceInfo` 时构建 Bot 将会发出警告, 须手动选择使用 `randomDeviceInfo` 或 `fileBasedDeviceInfo` 或自定义, 详见 [BotConfiguration.kt: Lines 69-72](mirai-core/src/commonMain/kotlin/net.mamoe.mirai/utils/BotConfiguration.common.kt#L69-L72)
 <br />
 
 - 引入 `SimpleListenerHost` 以帮助 Java 处理事件监听
